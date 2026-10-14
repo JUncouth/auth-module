@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package appliance.auth.v1;
+
+option go_package = "auth/src/auth/proto;authpb";
+
+service AuthorizationService {
+    rpc Register(RegisterRequest) returns (AuthResponse);
+    rpc Authenticate(AuthenticateRequest) returns (AuthResponse);
+    rpc ChangePassword(ChangePasswordRequest) returns (OperationResponse);
+    rpc ResetPassword(ResetPasswordRequest) returns (OperationResponse);
+    rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);
+}
+
+message RegisterRequest {
+    string email = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string phone_number = 4;
+    string password = 5;
+}
+
+message AuthenticateRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message ChangePasswordRequest {
+    string email = 1;
+    string old_password = 2;
+    string new_password = 3;
+}
+
+message ResetPasswordRequest {
+    string email = 1;
+}
+
+message VerifyTokenRequest {
+    string token = 1;
+}
+
+message AuthResponse {
+    string user_id = 1;
+    string token = 2;
+}
+
+message VerifyTokenResponse {
+    string user_id = 1;
+    string email = 2;
+}
+
+message OperationResponse {
+    bool success = 1;
+    string message = 2;
+}

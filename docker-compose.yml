@@ -1,0 +1,36 @@
+services:
+  auth-db:
+    image: postgres:18-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth-data:/var/lib/postgresql
+      - ./migrations/001_create_users.sql:/docker-entrypoint-initdb.d/001_create_users.sql:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U auth -d auth" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  auth:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - AUTH_DATABASE_URL=${AUTH_DATABASE_URL}
+      - AUTH_GRPC_ADDRESS=${AUTH_GRPC_ADDRESS}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_TTL=${JWT_TTL}
+    expose:
+      - "50051"
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    ports:
+      - "50051:50051"
+
+volumes:
+  auth-data:
